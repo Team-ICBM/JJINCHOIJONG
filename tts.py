@@ -24,7 +24,7 @@ engine.setProperty('rate', 125)     # setting up new voice rate  default is 125
 # engine.setProperty('voice', voices[1].id)   #changing index, changes voices. 1 for female
 
 
-def textToSpeak(text: str, *args) -> None:
+def text_to_speak(text: str, *args) -> None:
     """
     주어진 텍스트를 음성으로 변환합니다.
     
