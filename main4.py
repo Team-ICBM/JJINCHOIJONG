@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import re
 from db_utils import get_allergens_risk_levels
 import sys
-from tts import textToSpeak
+from tts import text_to_speak
 
 
 
@@ -68,7 +68,7 @@ def main():
 
 
     # 요구사항 1 : 제품 이름을 음성으로 출력
-    textToSpeak("제품 이름은", product_name, "이고, ")
+    text_to_speak("제품 이름은", product_name, "이고, ")
 
     # 요구사항 2 : 나트륨, 포화지방, 열량 출력
     sodium = nutrient.get('sodium', None)
@@ -76,11 +76,11 @@ def main():
     energy_kcal = nutrient.get('energy_kcal', None)
 
     if sodium is not None:
-        textToSpeak("나트륨", sodium)
+        text_to_speak("나트륨", sodium)
     if saturated_fat is not None:
-        textToSpeak("포화지방", saturated_fat)
+        text_to_speak("포화지방", saturated_fat)
     if energy_kcal is not None:
-        textToSpeak("열량", energy_kcal, "입니다.")
+        text_to_speak("열량", energy_kcal, "입니다.")
 
 
 
@@ -107,16 +107,16 @@ def main():
                     print(f" - {allergen}: 주의! 고위험 알레르기 성분이 포함되어 있습니다.")
                     
                     # 요구사항 3 : 알러지 정보 음성으로 출력
-                    textToSpeak(f"{allergen}: 주의! 고위험 알레르기 성분이 포함되어 있습니다.")
+                    text_to_speak(f"{allergen}: 주의! 고위험 알레르기 성분이 포함되어 있습니다.")
                 elif risk_level == "Risk Group":
                     print(f" - {allergen}: 주의! 위험 알레르기 성분이 포함되어 있습니다.")
-                    textToSpeak(f"{allergen}: 주의! 위험 알레르기 성분이 포함되어 있습니다.")
+                    text_to_speak(f"{allergen}: 주의! 위험 알레르기 성분이 포함되어 있습니다.")
                 elif risk_level == "Caution Group":
                     print(f" - {allergen}: 주의! 주의가 필요한 알레르기 성분이 포함되어 있습니다.")
-                    textToSpeak(f"{allergen}: 주의! 주의가 필요한 알레르기 성분이 포함되어 있습니다.")
+                    text_to_speak(f"{allergen}: 주의! 주의가 필요한 알레르기 성분이 포함되어 있습니다.")
                 else:
                     print(f" - {allergen}: 알 수 없는 위험 수준.")
-                    textToSpeak(f"{allergen}: 알 수 없는 위험 수준.")
+                    text_to_speak(f"{allergen}: 알 수 없는 위험 수준.")
         else:
             print("\n4. 알레르기 정보: 데이터베이스에 등록된 알레르기 성분이 없습니다.")
     else:
