@@ -90,11 +90,7 @@ Item 내용: {
  - 우유: 주 git init  필요한 알레르기 성분이 포함되어 있습니다.
 
 
-## 우선은 확인용으로 중간 부분도 출력했고 음성 출력은 1,4,5 번만 하면 될 것 같습니다.
 
 
-
-## pyttsx3 Linux installation requirements.
-  - sudo apt update && sudo apt install espeak ffmpeg libespeak1
 
 
