@@ -1,63 +1,72 @@
-# db_manage.py
 import streamlit as st
 import pandas as pd
-import os
 from dotenv import load_dotenv
-from contextlib import contextmanager
-from db_utils import get_db_cursor
 import re
+from db_utils import get_db_connection  # 수정된 db_utils.py의 함수 임포트
 
 # 환경 변수 로드
 load_dotenv()
 
 # 알레르기 정보 삽입 함수
 def insert_allergy_info(allergen, risk_level):
-    with get_db_cursor() as cursor:
-        sql = """
-            INSERT INTO allergy_info (allergen, risk_level) 
-            VALUES (%s, %s) 
-            ON DUPLICATE KEY UPDATE risk_level = VALUES(risk_level)
-        """
-        cursor.execute(sql, (allergen, risk_level))
+    with get_db_connection() as supabase:
+        data = {
+            'allergen': allergen,
+            'risk_level': risk_level
+        }
+        result = supabase.table('allergy_info')\
+            .upsert(data)\
+            .execute()
+        return result
 
 # 알레르기 정보 삭제 함수
 def delete_allergy_info(allergen):
-    with get_db_cursor() as cursor:
-        sql = "DELETE FROM allergy_info WHERE allergen = %s"
-        cursor.execute(sql, (allergen,))
+    with get_db_connection() as supabase:
+        result = supabase.table('allergy_info')\
+            .delete()\
+            .eq('allergen', allergen)\
+            .execute()
+        return result
 
 # 알레르기 정보 그룹 조회 함수
 def get_allergy_info_grouped():
-    with get_db_cursor() as cursor:
-        sql = "SELECT allergen, risk_level FROM allergy_info ORDER BY risk_level"
-        cursor.execute(sql)
-        result = cursor.fetchall()
-    
-    # DataFrame으로 변환하여 그룹별로 나눔
-    df = pd.DataFrame(result)
-    if not df.empty:
-        grouped = {
-            "High Risk Group": df[df['risk_level'] == 'High Risk Group'],
-            "Risk Group": df[df['risk_level'] == 'Risk Group'],
-            "Caution Group": df[df['risk_level'] == 'Caution Group']
-        }
-    else:
-        grouped = {
-            "High Risk Group": pd.DataFrame(),
-            "Risk Group": pd.DataFrame(),
-            "Caution Group": pd.DataFrame()
-        }
-    return grouped
+    with get_db_connection() as supabase:
+        result = supabase.table('allergy_info')\
+            .select('allergen, risk_level')\
+            .order('risk_level')\
+            .execute()
+        
+        # DataFrame으로 변환
+        df = pd.DataFrame(result.data)
+        
+        if not df.empty:
+            grouped = {
+                "High Risk Group": df[df['risk_level'] == 'High Risk Group'],
+                "Risk Group": df[df['risk_level'] == 'Risk Group'],
+                "Caution Group": df[df['risk_level'] == 'Caution Group']
+            }
+        else:
+            grouped = {
+                "High Risk Group": pd.DataFrame(),
+                "Risk Group": pd.DataFrame(),
+                "Caution Group": pd.DataFrame()
+            }
+        return grouped
 
-# 입력값 검증 함수
+# 입력값 검증 함수 (변경 없음)
 def validate_allergen(allergen):
-    # 허용할 문자 패턴 정의 (알파벳, 한글, 공백, 하이픈, 슬래시)
     pattern = re.compile(r'^[A-Za-z가-힣\s\-\/]+$')
     return bool(pattern.match(allergen))
 
-# 페이지 새로고침을 위한 세션 상태 초기화
-if 'refresh' not in st.session_state:
-    st.session_state.refresh = False
+
+def toggle_refresh():
+    """refresh 상태를 토글하는 함수"""
+    if 'refresh' not in st.session_state:
+        st.session_state.refresh = False
+    st.session_state.refresh = not st.session_state.refresh
+
+
+
 
 # Streamlit 앱 구성
 st.title("알레르기 정보 관리")
@@ -73,7 +82,7 @@ if st.button("알레르기 정보 추가"):
             insert_allergy_info(allergen, risk_level)
             st.success("알레르기 정보가 추가되었습니다!")
             # 데이터 업데이트를 위해 페이지 상태 변경
-            st.session_state.refresh = not st.session_state.refresh
+            toggle_refresh()  # 함수 호출
         else:
             st.error("알레르기 성분에 유효하지 않은 문자가 포함되어 있습니다.")
     else:
@@ -102,6 +111,6 @@ for group, data in allergy_data_grouped.items():
                     delete_allergy_info(row['allergen'])
                     st.success(f"{row['allergen']} 항목이 삭제되었습니다!")
                     # 데이터 업데이트를 위해 페이지 상태 변경
-                    st.session_state.refresh = not st.session_state.refresh
+                    toggle_refresh()  # 함수 호출
     else:
         st.write("해당 그룹에 저장된 알레르기 정보가 없습니다.")

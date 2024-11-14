@@ -1,49 +1,41 @@
-# db_utils.py
-import pymysql
 import os
 from dotenv import load_dotenv
 from contextlib import contextmanager
 import streamlit as st
+from supabase import create_client
 
 # 환경 변수 로드
 load_dotenv()
 
-def connect_to_database():
-    return pymysql.connect(
-        user=os.getenv('DB_USER'),
-        passwd=os.getenv('DB_PASSWORD'),
-        host=os.getenv('DB_HOST'),
-        db=os.getenv('DB_NAME'),
-        charset=os.getenv('DB_CHARSET')
-    )
+# Supabase 클라이언트 초기화
+def init_supabase():
+    url: str = os.getenv('SUPABASE_URL')
+    key: str = os.getenv('SUPABASE_KEY')
+    return create_client(url, key)
 
 @contextmanager
-def get_db_cursor(cursor_type=pymysql.cursors.DictCursor):
-    connection = connect_to_database()
+def get_db_connection():
+    supabase = init_supabase()
     try:
-        cursor = connection.cursor(cursor_type)
-        yield cursor
-        connection.commit()
-    except pymysql.MySQLError as e:
+        yield supabase
+    except Exception as e:
         st.error(f"데이터베이스 오류: {e}")
-        connection.rollback()
-    finally:
-        cursor.close()
-        connection.close()
+        raise e
 
 def get_allergen_risk_level(allergen):
     """
     주어진 알레르기 성분의 위험 수준을 반환합니다.
     알레르기 정보가 없으면 None을 반환합니다.
     """
-    with get_db_cursor() as cursor:
-        sql = "SELECT risk_level FROM allergy_info WHERE allergen = %s"
-        cursor.execute(sql, (allergen,))
-        result = cursor.fetchone()
-        if result:
-            return result['risk_level']
-        else:
-            return None
+    with get_db_connection() as supabase:
+        result = supabase.table('allergy_info')\
+            .select('risk_level')\
+            .eq('allergen', allergen)\
+            .execute()
+        
+        if result.data and len(result.data) > 0:
+            return result.data[0]['risk_level']
+        return None
 
 def get_allergens_risk_levels(allergens):
     """
@@ -54,11 +46,25 @@ def get_allergens_risk_levels(allergens):
     if not allergens:
         return {}
     
-    with get_db_cursor() as cursor:
-        # SQL IN 절을 위해 포맷 문자열 생성
-        format_strings = ','.join(['%s'] * len(allergens))
-        sql = f"SELECT allergen, risk_level FROM allergy_info WHERE allergen IN ({format_strings})"
-        cursor.execute(sql, tuple(allergens))
-        results = cursor.fetchall()
-        risk_levels = {row['allergen']: row['risk_level'] for row in results}
-        return risk_levels
+    with get_db_connection() as supabase:
+        result = supabase.table('allergy_info')\
+            .select('allergen, risk_level')\
+            .in_('allergen', allergens)\
+            .execute()
+        
+        return {row['allergen']: row['risk_level'] for row in result.data}
+
+def insert_allergy_info(allergen, risk_level):
+    with get_db_connection() as supabase:
+        result = supabase.table('allergy_info')\
+            .upsert({'allergen': allergen, 'risk_level': risk_level})\
+            .execute()
+        return result
+
+def delete_allergy_info(allergen):
+    with get_db_connection() as supabase:
+        result = supabase.table('allergy_info')\
+            .delete()\
+            .eq('allergen', allergen)\
+            .execute()
+        return result
