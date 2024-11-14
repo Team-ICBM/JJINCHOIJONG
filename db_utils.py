@@ -1,9 +1,8 @@
-# db_utils.py
 import os
 from dotenv import load_dotenv
 from contextlib import contextmanager
 import streamlit as st
-from supabase import create_client, Client
+from supabase import create_client
 
 # 환경 변수 로드
 load_dotenv()
