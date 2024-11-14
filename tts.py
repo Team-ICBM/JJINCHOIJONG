@@ -9,7 +9,7 @@ tts 관련 옵션 변경
 """ RATE"""
 rate = engine.getProperty('rate')   # getting details of current speaking rate
 # print (rate)                        #printing current voice rate
-engine.setProperty('rate', 125)     # setting up new voice rate  default is 125
+engine.setProperty('rate', 140)     # setting up new voice rate  default is 125
 
 
 # """VOLUME"""
