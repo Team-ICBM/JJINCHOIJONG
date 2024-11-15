@@ -11,3 +11,6 @@ __pycache__/
 
 get-pip.py
 myenv/
+
+# Sound cache directory
+sound_cache/
