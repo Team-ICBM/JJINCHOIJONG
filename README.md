@@ -92,6 +92,11 @@ Item 내용: {
 
 ## 우선은 확인용으로 중간 부분도 출력했고 음성 출력은 1,4,5 번만 하면 될 것 같습니다.
 
+## 수정된 streamlit design 입니다.
+![image1](https://github.com/user-attachments/assets/cb90a035-0c53-40f1-993e-90c1b051c4ef)
+
+![image 2](https://github.com/user-attachments/assets/6bd7fd10-9f5e-441b-90da-b6fe68593466)
+
 
 
 ## pyttsx3 Linux installation requirements.
