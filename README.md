@@ -91,6 +91,11 @@ Item 내용: {
 
 
 
+## 수정된 streamlit design 입니다.
+![image1](https://github.com/user-attachments/assets/cb90a035-0c53-40f1-993e-90c1b051c4ef)
+
+![image 2](https://github.com/user-attachments/assets/6bd7fd10-9f5e-441b-90da-b6fe68593466)
+
 
 
 
