@@ -2,9 +2,10 @@
 
 requests
 gTTS
-playsound
+playsound==1.2.2
 streamlit
 pymysql
 pandas
 python-dotenv
 pyttsx3
+supabase

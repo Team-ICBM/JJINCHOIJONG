@@ -7,8 +7,6 @@ from db_utils import get_allergens_risk_levels
 import sys
 from tts import text_to_speak
 
-
-
 def main():
     # 환경 변수 로드
     load_dotenv()
@@ -16,8 +14,6 @@ def main():
     api_key_name = os.getenv('API_KEY_NAME')  # 식품안전나라 API 키
     api_key_detail = os.getenv('API_KEY_DETAIL')  # 성분 정보 API 키
     
-
-
     # 바코드 입력 받기
     barcode = input("바코드를 입력하세요: ").strip()
     
